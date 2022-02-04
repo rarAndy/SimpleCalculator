@@ -4,8 +4,8 @@ const line1 = document.querySelector("#line1");
 const inputline = document.querySelector(".input-line")
 const outputline = document.querySelector(".output-line")
 const buttons = document.querySelectorAll("button");
-
 const line = document.querySelectorAll(".line");
+
 let ans = 0
 buttons.forEach(button => {button.addEventListener('click', () => {
     console.log(button.textContent);
@@ -26,9 +26,9 @@ function addToOutput(input) {
                 line[i].children[1].textContent = ""}
     }   else if (input == "ans") {
             inputline.textContent += 'ans';
-    }   else if ((input == "+" || input == "-" || input == "x" || input == "/" || input == "^") && (line[0].children[0].firstChild == null)) {
+    }   else if ((input == "+" || input == "-" || input == "x" || input == "/" || input == "^" || input == "mod") && (line[0].children[0].firstChild == null)) {
             inputline.textContent += `ans ${input} `;
-    }   else if ((input == "+" || input == "-" || input == "x" || input == "/" || input == "^")) {
+    }   else if ((input == "+" || input == "-" || input == "x" || input == "/" || input == "^" || input == "mod")) {
             inputline.textContent += ` ${input} `;
     }   else if (input == "(-)") {
             inputline.textContent += `-`;
@@ -39,7 +39,7 @@ function parseNumsAndOps(input){
     input = input.replace("ans", ans)
     input = input.replace(/\s/g, "");
     console.log(input);
-    let regex = /(-?\d*\.?\d+)|./g;
+    let regex = /(-?\d*\.?\d+)|mod|./g;
     newArr = input.match(regex);
     for (let i = 0; i < newArr.length-1 ; i++) {
         if ((parseFloat(newArr[i]) && parseFloat(newArr[i+1])) ||
@@ -76,13 +76,19 @@ function operations(array) {
         "-": function(x, y) {return x - y},
         "x": function(x, y) {return x * y},
         "/": function(x, y) {return x / y},
-        "^": function(x, y) {return Math.pow(x, y)}
+        "^": function(x, y) {return Math.pow(x, y)},
+        "mod": function(x,y) {return x % y}        
     };
     if (array.includes("^")) {
         num = math["^"](array[array.indexOf("^")-1], array[array.indexOf("^")+1]);
         array.splice(array.indexOf("^")-1, 3, num);
         operations(array);
-    }
+    };
+    if (array.includes("mod")) {
+        num = math["mod"](array[array.indexOf("mod")-1], array[array.indexOf("mod")+1]);
+        array.splice(array.indexOf("mod")-1, 3, num);
+        operations(array);
+    };
     if (array.includes("/")) {
         num = math["/"](array[array.indexOf("/")-1], array[array.indexOf("/")+1]);
         array.splice(array.indexOf("/")-1, 3, num);
