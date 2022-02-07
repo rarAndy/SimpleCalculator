@@ -40,30 +40,36 @@ function parseNumsAndOps(input){
     input = input.replace(/\s/g, "");
     console.log(input);
     let regex = /(-?\d*\.?\d+)|mod|./g;
-    newArr = input.match(regex);
-    for (let i = 0; i < newArr.length-1 ; i++) {
-        if ((parseFloat(newArr[i]) && parseFloat(newArr[i+1])) ||
-            newArr[i] == ")" && parseFloat(newArr[i+1])) {
-            newArr.splice(i+1, 0, "+");
-            newArr.join();
-        };
+    prevArr = input.match(regex);
+    let newArr = []
+    for (let i = 0; i <= prevArr.length - 1; i++) {        
+        if (isNaN(prevArr[i]) == false && isNaN(prevArr[i-1]) == false) {
+                newArr.push("+", prevArr[i]);
+        }
+        else if (isNaN(prevArr[i]) == false  && prevArr[i-1] == ")") {
+            newArr.push("+", prevArr[i]);
+        }
+        else {
+            newArr.push(prevArr[i])
+        }
     }
     return newArr;
 }
 
 function parSearch (array) {
-    par1 = 0;
-    par2 = 0;
+    par1 = -1;
+    par2 = -1;
     for (let i = 0; i < array.length ; i++) {
-        
         if (array[i] == "(") {
             par1 = i;
         };
         if (array[i] == ")") {
             par2 = i;
+            
             break;
-        };
+        }        
     }
+    if (par1 == -1 || par2 == -1) {return 0}    
     parIndex = [par1, par2];
     parExp = array.slice(par1, par2+1);
     return {parExp, parIndex};
@@ -104,26 +110,39 @@ function operations(array) {
         array.splice(array.indexOf("+")-1, 3, num);
         operations(array);
     };
+    if (array.includes("-")) {
+        num = math["-"](array[array.indexOf("-")-1], array[array.indexOf("-")+1]);
+        array.splice(array.indexOf("-")-1, 3, num);
+        operations(array);
+    };
+
     return array;
 }
 
 function calc(input) {
     expr = parseNumsAndOps(input);
-
+    console.log(expr)
     while (expr.includes("(")) {
+        if (parSearch(expr) == 0) {break;}
+        else {
         parExp = parSearch(expr).parExp;
         parIndex = parSearch(expr).parIndex;
         parInitExp = parExp.length;
         parEval = operations(parExp);
         expr.splice(parIndex[0], parInitExp, parEval[1]);
-    } 
+        };
+    };
 
     operations(expr);
-    outputline.textContent = expr;
-    ans = expr;
+    if (isNaN(expr) == true && isNaN(parseFloat(ans[1])) == true) {    
+        outputline.textContent = "ERROR";
+    } else {
+        ans = expr;
+        outputline.textContent = expr;    
+    };
     changeTextContent();
     return ans;
-}
+};
 
 function changeTextContent() {
     for (let i = 5; i > 0; i--) {
